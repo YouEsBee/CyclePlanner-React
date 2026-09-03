@@ -10,7 +10,6 @@ export default function Index() {
         </View>
         <Text>Hello World</Text>
       </ScrollView>
-      
     </SafeAreaProvider>
   );
 }
