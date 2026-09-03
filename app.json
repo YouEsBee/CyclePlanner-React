@@ -35,6 +35,12 @@
           "imageWidth": 76
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Cycling Planner to access your location."
+        }
+      ],
       "@maplibre/maplibre-react-native"
     ],
     "experiments": {
