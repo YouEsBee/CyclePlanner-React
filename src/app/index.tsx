@@ -1,5 +1,5 @@
 import { Text, View, StyleSheet } from "react-native";
-import { Map, Camera, type CameraRef } from "@maplibre/maplibre-react-native";
+import { Map, Camera, UserLocation, type CameraRef } from "@maplibre/maplibre-react-native";
 import { useEffect, useState, useRef } from "react";
 import * as Location from "expo-location";
 
@@ -75,6 +75,7 @@ export default function Index() {
         <Camera
           ref={cameraRef} initialViewState={INITIAL_VIEW_STATE}
         />
+        <UserLocation accuracy/>
       </Map>
     </View>
   );
