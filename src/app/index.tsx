@@ -1,23 +1,19 @@
-import { Text, View, StyleSheet, ScrollView } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Text, View, StyleSheet } from "react-native";
+import { Map } from "@maplibre/maplibre-react-native";
 
 export default function Index() {
   return (
-    <SafeAreaProvider>
-      <ScrollView>
-        <View style={styles.container}>
-          <Text>Cycling Planner</Text>
-        </View>
-        <Text>Hello World</Text>
-      </ScrollView>
-    </SafeAreaProvider>
+    <View style={styles.container}>
+      <Map style={styles.map} mapStyle="https://demotiles.maplibre.org/style.json"/>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
+  map: {
+    flex: 1,
+  }
 });
