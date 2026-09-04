@@ -3,6 +3,8 @@ import { Map, Camera, UserLocation, GeoJSONSource, Layer, type CameraRef } from 
 import { useEffect, useState, useRef } from "react";
 import * as Location from "expo-location";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { stylesPlanner } from "@/constants/theme"
+import { fetchParkConnectors } from "@/components/planner-func";
 
 const DEFAULT_LOCATION: Location.LocationObject = {
     coords: {
@@ -67,23 +69,8 @@ export default function Index() {
       }
     }
 
-    async function fetchParkConnectors() {
-      const pollRes = await fetch(
-        `https://api-open.data.gov.sg/v1/public/api/datasets/${DATASET_ID}/poll-download`
-      );
-      const pollJson = await pollRes.json();
-
-      if (pollJson.code !== 0) {
-        throw new Error(pollJson.errMsg);
-      }
-
-      const fileRes = await fetch(pollJson.data.url);
-      const geojson = await fileRes.json();
-      return geojson;
-    }
-
     getCurrentLocation();
-    fetchParkConnectors().then(setParkConnectors).catch(console.warn);
+    fetchParkConnectors(DATASET_ID).then(setParkConnectors).catch(console.warn);
   }, []);
 
   let text = "Waiting...";
@@ -94,16 +81,16 @@ export default function Index() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.searchBox, {top: insets.top + 10}]}>
-        <TextInput style={styles.searchField} placeholder="Starting Point"/>
+    <View style={stylesPlanner.container}>
+      <View style={[stylesPlanner.searchBox, {top: insets.top + 10}]}>
+        <TextInput style={stylesPlanner.searchField} placeholder="Starting Point"/>
         <Text style={{textAlign:"center"}}>To</Text>
-        <TextInput style={styles.searchField} placeholder="Destination"/>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttontext}>Plan</Text>
+        <TextInput style={stylesPlanner.searchField} placeholder="Destination"/>
+        <TouchableOpacity style={stylesPlanner.button}>
+          <Text style={stylesPlanner.buttontext}>Plan</Text>
         </TouchableOpacity>
       </View>
-      <Map style={styles.map} mapStyle="https://tiles.openfreemap.org/styles/liberty">
+      <Map style={stylesPlanner.map} mapStyle="https://tiles.openfreemap.org/styles/liberty">
         <Camera
           ref={cameraRef} initialViewState={INITIAL_VIEW_STATE}
         />
@@ -127,45 +114,3 @@ export default function Index() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
-  searchBox: {
-    position: "absolute",
-    left: 10,
-    right: 10,
-    backgroundColor: "white",
-    padding: 12,
-    borderRadius: 20,
-    elevation: 10, // Android
-    zIndex: 10,
-    shadowColor: "#000", // iOS
-    shadowOffset: {width:0, height:2},
-    shadowOpacity: 0.15,
-    shadowRadius: 4
-  },
-  searchField: {
-    borderRadius: 10,
-    backgroundColor: "#EEEEEE",
-    margin: 5,
-    padding: 10
-  },
-  button: {
-    borderRadius: 10,
-    backgroundColor: "#006BF6",
-    padding: 10,
-    marginTop: 15,
-    marginLeft: 5,
-    marginRight: 5,
-    marginBottom: 5
-  },
-  buttontext: {
-    color: "#FFFFFF",
-    textAlign: "center"
-  }
-});

@@ -5,7 +5,7 @@
 
 import '@/global.css';
 
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export const Colors = {
   light: {
@@ -63,3 +63,46 @@ export const Spacing = {
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
+
+
+export const stylesPlanner = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  map: {
+    flex: 1,
+  },
+  searchBox: {
+    position: "absolute",
+    left: 10,
+    right: 10,
+    backgroundColor: "white",
+    padding: 12,
+    borderRadius: 20,
+    elevation: 10, // Android
+    zIndex: 10,
+    shadowColor: "#000", // iOS
+    shadowOffset: {width:0, height:2},
+    shadowOpacity: 0.15,
+    shadowRadius: 4
+  },
+  searchField: {
+    borderRadius: 10,
+    backgroundColor: "#EEEEEE",
+    margin: 5,
+    padding: 10
+  },
+  button: {
+    borderRadius: 10,
+    backgroundColor: "#006BF6",
+    padding: 10,
+    marginTop: 15,
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 5
+  },
+  buttontext: {
+    color: "#FFFFFF",
+    textAlign: "center"
+  }
+});
