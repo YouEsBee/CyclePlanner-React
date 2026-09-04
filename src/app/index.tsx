@@ -1,9 +1,8 @@
 import { Text, View, StyleSheet, TextInput, TouchableOpacity } from "react-native";
-import { Map, Camera, UserLocation, type CameraRef } from "@maplibre/maplibre-react-native";
+import { Map, Camera, UserLocation, GeoJSONSource, Layer, type CameraRef } from "@maplibre/maplibre-react-native";
 import { useEffect, useState, useRef } from "react";
 import * as Location from "expo-location";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Button } from "expo-router/build/react-navigation";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DEFAULT_LOCATION: Location.LocationObject = {
     coords: {
@@ -29,6 +28,9 @@ export default function Index() {
   const [location, setLocation] = useState<Location.LocationObject>(DEFAULT_LOCATION);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const cameraRef = useRef<CameraRef>(null);
+
+  const DATASET_ID = "d_a69ef89737379f231d2ae93fd1c5707f";
+  const [parkConnectors, setParkConnectors] = useState(null);
 
   useEffect(() => {
     async function getCurrentLocation() {
@@ -64,7 +66,24 @@ export default function Index() {
         setLocation(DEFAULT_LOCATION);
       }
     }
+
+    async function fetchParkConnectors() {
+      const pollRes = await fetch(
+        `https://api-open.data.gov.sg/v1/public/api/datasets/${DATASET_ID}/poll-download`
+      );
+      const pollJson = await pollRes.json();
+
+      if (pollJson.code !== 0) {
+        throw new Error(pollJson.errMsg);
+      }
+
+      const fileRes = await fetch(pollJson.data.url);
+      const geojson = await fileRes.json();
+      return geojson;
+    }
+
     getCurrentLocation();
+    fetchParkConnectors().then(setParkConnectors).catch(console.warn);
   }, []);
 
   let text = "Waiting...";
@@ -75,23 +94,37 @@ export default function Index() {
   }
 
   return (
-    <>
     <View style={styles.container}>
       <View style={[styles.searchBox, {top: insets.top + 10}]}>
         <TextInput style={styles.searchField} placeholder="Starting Point"/>
         <Text style={{textAlign:"center"}}>To</Text>
         <TextInput style={styles.searchField} placeholder="Destination"/>
-        <TouchableOpacity style={styles.button}><Text style={styles.buttontext}>Plan</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttontext}>Plan</Text>
+        </TouchableOpacity>
       </View>
       <Map style={styles.map} mapStyle="https://tiles.openfreemap.org/styles/liberty">
         <Camera
           ref={cameraRef} initialViewState={INITIAL_VIEW_STATE}
         />
         <UserLocation accuracy/>
+
+        {/* Draw park connectors on map */}
+        {parkConnectors && (
+          <GeoJSONSource id="parkConnectors" data={parkConnectors}>
+            <Layer
+              id="parkConnectorsLine"
+              type="line"
+              paint={{
+                "line-color": "#006e30",
+                "line-width": 5,
+                "line-opacity": 0.8,
+              }}
+            />
+          </GeoJSONSource>
+        )}
       </Map>
     </View>
-    </>
-    
   );
 }
 
