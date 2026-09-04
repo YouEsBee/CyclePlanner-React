@@ -4,9 +4,13 @@ A React Native application to plan your cycling route.
 ### Important!!!
 Run the app in development build for maps to work.
 
+### Features to be implemented
+1) Logic for PCN route planning
+2) Saved routes
+3) Profile page
 
-# EXPO APP GUIDE
-# Welcome to your Expo app 👋
+
+# Expo App Guide
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
