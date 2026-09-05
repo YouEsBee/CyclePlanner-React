@@ -1,14 +1,25 @@
 # Cycle Planner
-A React Native application to plan your cycling route.
+A React Native application to plan your cycling route in Singapore.
 
 ## Important!!!
 Run the app in development build for maps to work.
 
 ## Features to be implemented
-1) Logic for PCN route planning
-2) Saved routes
-3) Profile page
+- Connect Nomatim or Photon Komoot API for start and destination search
+- Logic for PCN route planning
+- After PCN route is generated, the
+   - Start Ride Navigation,
+   - Save Route,
+   - Clear features
+- Profile page 
+   - Saved Routes,
+   - etc.
+- Icons for nav bar (normal, @2x, @3x)
+- App icon (1024x1024)
+- Any other useful features
 
+## Built with
+React Native (TypeScript), Expo,MapLibre, data.gov.sg
 
 ## Expo App Guide
 

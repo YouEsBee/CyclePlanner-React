@@ -1,5 +1,3 @@
-
-
 export async function fetchParkConnectors(DATASET_ID:string) {
     const pollRes = await fetch(
         `https://api-open.data.gov.sg/v1/public/api/datasets/${DATASET_ID}/poll-download`
