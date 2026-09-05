@@ -103,6 +103,35 @@ export const stylesPlanner = StyleSheet.create({
   },
   buttontext: {
     color: "#FFFFFF",
-    textAlign: "center"
+    textAlign: "center",
+    fontWeight: "bold"
+  }
+});
+
+export const stylesProfile = StyleSheet.create({
+  main: {
+    margin: 20,
+  },
+  panes: {
+    borderRadius: 10,
+    backgroundColor: "#FFF",
+    marginTop: 20,
+    padding: 20
+  },
+  header: {
+    fontSize: 40
+  },
+  settingHeader: {
+    fontSize: 18
+  },
+  line: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: "#bbb",
+    marginTop: 10,
+    marginBottom: 20,
+    width: "100%"
+  },
+  routePanel: {
+    paddingVertical: 20
   }
 });

@@ -34,6 +34,9 @@ export default function Index() {
   const DATASET_ID = "d_a69ef89737379f231d2ae93fd1c5707f";
   const [parkConnectors, setParkConnectors] = useState(null);
 
+  const [startLoc, setStartLoc] = useState("");
+  const [destLoc, setDestLoc] = useState("");
+
   useEffect(() => {
     async function getCurrentLocation() {
       try {
@@ -83,9 +86,9 @@ export default function Index() {
   return (
     <View style={stylesPlanner.container}>
       <View style={[stylesPlanner.searchBox, {top: insets.top + 10}]}>
-        <TextInput style={stylesPlanner.searchField} placeholder="Starting Point"/>
+        <TextInput style={stylesPlanner.searchField} onChangeText={(loc) => setStartLoc(loc)} value={startLoc} placeholder="Starting Point"/>
         <Text style={{textAlign:"center"}}>To</Text>
-        <TextInput style={stylesPlanner.searchField} placeholder="Destination"/>
+        <TextInput style={stylesPlanner.searchField} onChangeText={(loc) => setDestLoc(loc)} value={destLoc} placeholder="Destination"/>
         <TouchableOpacity style={stylesPlanner.button}>
           <Text style={stylesPlanner.buttontext}>Plan</Text>
         </TouchableOpacity>
