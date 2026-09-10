@@ -1,10 +1,9 @@
-import { ActivityIndicator, Dimensions, Keyboard, Pressable, ScrollView, Text, View, TextInput, TouchableOpacity } from "react-native";
-import { Map, Camera, UserLocation, GeoJSONSource, Layer, type CameraRef } from "@maplibre/maplibre-react-native";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import * as Location from "expo-location";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BottomTabInset, stylesPlanner, stylesRoute, stylesSearch } from "@/constants/theme"
-import { usePcnNetwork, usePlaceSearch } from "@/components/planner-func";
+import {
+  usePcnNetwork,
+  usePlaceSearch,
+  useTrafficSignal,
+} from "@/components/planner-func";
+import { BottomTabInset, stylesPlanner, stylesRoute, stylesSearch } from "@/constants/theme";
 import { placeToLngLat, type GeoPlace } from "@/services/geocoding";
 import {
   accessLegsToFeatureCollection,
@@ -17,6 +16,12 @@ import {
   type LngLat,
   type PlannedRoute,
 } from "@/services/pcn-routing";
+import { getRouteTrafficLights, type RouteTrafficLights, } from "@/services/traffic-signals";
+import { Camera, GeoJSONSource, Layer, Map, UserLocation, type CameraRef } from "@maplibre/maplibre-react-native";
+import * as Location from "expo-location";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ActivityIndicator, Dimensions, Keyboard, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DEFAULT_LOCATION: Location.LocationObject = {
     coords: {
@@ -75,6 +80,11 @@ export default function Index() {
 
   const { geojson: parkConnectors, graph, loading: networkLoading, error: networkError } =
     usePcnNetwork(DATASET_ID);
+  const {
+  geojson: trafficSignalGeojson,
+  loading: trafficSignalsLoading,
+  error: trafficSignalsError,
+} = useTrafficSignal();
 
   const [startLoc, setStartLoc] = useState("");
   const [destLoc, setDestLoc] = useState("");
@@ -85,6 +95,8 @@ export default function Index() {
   const [route, setRoute] = useState<PlannedRoute | null>(null);
   const [planning, setPlanning] = useState(false);
   const [planError, setPlanError] = useState<string | null>(null);
+  
+  const [trafficLights, setTrafficLights] = useState<RouteTrafficLights | null>(null);
 
   const userLngLat = useMemo<LngLat>(
     () => [location.coords.longitude, location.coords.latitude],
@@ -136,6 +148,8 @@ export default function Index() {
       }
     }
 
+
+
     getCurrentLocation();
   }, []);
 
@@ -168,8 +182,9 @@ export default function Index() {
 
   const clearRoute = useCallback(() => {
     setRoute(null);
+    setTrafficLights(null);
     setPlanError(null);
-  }, []);
+}, []);
 
   const handlePlan = useCallback(async () => {
     Keyboard.dismiss();
@@ -199,6 +214,7 @@ export default function Index() {
 
     setPlanning(true);
     setRoute(null);
+    setTrafficLights(null);
     // Yield one frame so the spinner paints before the search runs.
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
 
@@ -211,8 +227,26 @@ export default function Index() {
     }
 
     setRoute(result.route);
-    fitCameraToRoute(result.route);
-  }, [destPlace, fitCameraToRoute, graph, networkError, startLoc, startPlace, userLngLat]);
+    
+    if (trafficSignalGeojson) {
+      const trafficLightResult = getRouteTrafficLights(
+        result.route.coordinates,
+        trafficSignalGeojson,
+  );
+  setTrafficLights(trafficLightResult);
+}
+
+fitCameraToRoute(result.route);
+  }, [
+  destPlace,
+  fitCameraToRoute,
+  graph,
+  networkError,
+  startLoc,
+  startPlace,
+  trafficSignalGeojson,
+  userLngLat,
+]);
 
   const routeLine = useMemo(() => (route ? routeToFeatureCollection(route) : null), [route]);
   const routeAccess = useMemo(() => (route ? accessLegsToFeatureCollection(route) : null), [route]);
@@ -399,7 +433,23 @@ export default function Index() {
           </GeoJSONSource>
         )}
 
-        {routeEndpoints && (
+        {trafficLights && trafficLights.crossings.features.length > 0 && (
+  <GeoJSONSource
+    id="trafficLightCrossings"
+    data={trafficLights.crossings}>
+    <Layer
+      id="trafficLightCrossingCircles"
+      type="circle"
+      paint={{
+        "circle-radius": 7,
+        "circle-color": "#F59E0B",
+        "circle-stroke-color": "#FFFFFF",
+        "circle-stroke-width": 2,
+      }}
+    />
+  </GeoJSONSource>
+)}
+{routeEndpoints && (
           <GeoJSONSource id="routeEndpoints" data={routeEndpoints}>
             <Layer
               id="routeEndpointsCircle"
@@ -426,7 +476,13 @@ export default function Index() {
               <Text style={stylesRoute.metricValue}>{formatDuration(route.durationSeconds)}</Text>
               <Text style={stylesRoute.metricLabel}>Estimated at 15 km/h</Text>
             </View>
-          </View>
+            <View>
+              <Text style={stylesRoute.metricValue}>
+                {trafficLights?.count ?? 0}
+                </Text>
+                <Text style={stylesRoute.metricLabel}>Traffic-light crossings</Text>
+                </View>
+            </View>
 
           {route.loops.length > 0 && (
             <Text style={stylesRoute.detail}>Via {route.loops.join(" → ")}</Text>

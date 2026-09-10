@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-
-import { searchPlaces, type GeoPlace, type LngLat } from "@/services/geocoding";
+import { searchPlaces, type GeoPlace, type LngLat, } from "@/services/geocoding";
 import { buildPcnGraph, type PcnGraph } from "@/services/pcn-routing";
+import { useEffect, useState } from "react";
 
 export async function fetchParkConnectors(DATASET_ID:string) {
     const pollRes = await fetch(
@@ -32,62 +31,74 @@ export interface PcnNetwork {
  * it. Graph construction is synchronous (~33k vertices, well under a second)
  * and runs after the first paint, so the map is interactive while it happens.
  */
-export function usePcnNetwork(datasetId: string): PcnNetwork {
-    const [geojson, setGeojson] = useState<any>(null);
-    const [graph, setGraph] = useState<PcnGraph | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+// export function usePcnNetwork(datasetId: string): PcnNetwork {
+//     const [geojson, setGeojson] = useState<any>(null);
+//     const [graph, setGraph] = useState<PcnGraph | null>(null);
+//     const [loading, setLoading] = useState(true);
+//     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        let cancelled = false;
+//     useEffect(() => {
+//         let cancelled = false;
 
-        (async () => {
-            try {
-                const data = await fetchParkConnectors(datasetId);
-                if (cancelled) return;
-                setGeojson(data);
+//         (async () => {
+//             try {
+//                 const data = await fetchParkConnectors(datasetId);
+//                 if (cancelled) return;
+//                 setGeojson(data);
 
-                const built = buildPcnGraph(data);
-                if (cancelled) return;
-                console.log("PCN graph:", built.stats);
-                setGraph(built);
-                setError(null);
-            } catch (e) {
-                console.warn("Failed to load park connectors:", e);
-                if (!cancelled) setError("Could not load the park connector network.");
-            } finally {
-                if (!cancelled) setLoading(false);
-            }
-        })();
+//                 const built = buildPcnGraph(data);
+//                 if (cancelled) return;
+//                 console.log("PCN graph:", built.stats);
+//                 setGraph(built);
+//                 setError(null);
+//             } catch (e) {
+//                 console.warn("Failed to load park connectors:", e);
+//                 if (!cancelled) setError("Could not load the park connector network.");
+//             } finally {
+//                 if (!cancelled) setLoading(false);
+//             }
+//         })();
 
-        return () => {
-            cancelled = true;
-        };
-    }, [datasetId]);
+//         return () => {
+//             cancelled = true;
+//         };
+//     }, [datasetId]);
 
-    return { geojson, graph, loading, error };
-}
+//     return { geojson, graph, loading, error };
+// }
 
+// export interface PlaceSearchOptions {
+//     /** Bias results towards this point. */
+//     near?: LngLat;
+//     /** Set false to pause searching (e.g. the field is not focused). */
+//     enabled?: boolean;
+//     /** Debounce before hitting the geocoder. Default 350 ms. */
+//     delayMs?: number;
+//     limit?: number;
+// }
+
+// export interface PlaceSearchState {
+//     results: GeoPlace[];
+//     loading: boolean;
+//     error: string | null;
+// }
+
+// /**
+//  * Debounced as-you-type place search. Each keystroke cancels the request still
+//  * in flight, so only the latest query reaches the geocoder.
+//  */
 export interface PlaceSearchOptions {
-    /** Bias results towards this point. */
-    near?: LngLat;
-    /** Set false to pause searching (e.g. the field is not focused). */
-    enabled?: boolean;
-    /** Debounce before hitting the geocoder. Default 350 ms. */
-    delayMs?: number;
-    limit?: number;
+  near?: LngLat;
+  enabled?: boolean;
+  delayMs?: number;
+  limit?: number;
 }
 
 export interface PlaceSearchState {
-    results: GeoPlace[];
-    loading: boolean;
-    error: string | null;
+  results: GeoPlace[];
+  loading: boolean;
+  error: string | null;
 }
-
-/**
- * Debounced as-you-type place search. Each keystroke cancels the request still
- * in flight, so only the latest query reaches the geocoder.
- */
 export function usePlaceSearch(query: string, options: PlaceSearchOptions = {}): PlaceSearchState {
     const { near, enabled = true, delayMs = 350, limit = 6 } = options;
 
@@ -140,4 +151,105 @@ export function usePlaceSearch(query: string, options: PlaceSearchOptions = {}):
     }, [query, enabled, delayMs, limit, nearKey]);
 
     return { results, loading, error };
+}
+// return { geojson, graph, loading, error };
+
+// // Paste useTrafficSignals here:
+// export interface TrafficSignalNetwork {
+//   geojson: any;
+//   loading: boolean;
+//   error: string | null;
+// }
+
+export function usePcnNetwork(datasetId: string): PcnNetwork {
+  const [geojson, setGeojson] = useState<any>(null);
+  const [graph, setGraph] = useState<PcnGraph | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const data = await fetchParkConnectors(datasetId);
+        if (cancelled) return;
+
+        setGeojson(data);
+
+        const built = buildPcnGraph(data);
+        if (cancelled) return;
+
+        console.log("PCN graph:", built.stats);
+        setGraph(built);
+        setError(null);
+      } catch (e) {
+        console.warn("Failed to load park connectors:", e);
+
+        if (!cancelled) {
+          setError("Could not load the park connector network.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [datasetId]);
+
+  return { geojson, graph, loading, error };
+}
+
+export interface TrafficSignalNetwork {
+  geojson: any;
+  loading: boolean;
+  error: string | null;
+}
+
+export function useTrafficSignal(): TrafficSignalNetwork {
+  const [geojson, setGeojson] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const response = await fetch("/data/traffic-signals.geojson");
+
+        if (!response.ok) {
+          throw new Error(`Traffic signals failed to load: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (cancelled) return;
+
+        setGeojson(data);
+        setError(null);
+        console.log("Traffic signal aspects:", data.features?.length ?? 0);
+      } catch (e) {
+        console.warn("Failed to load traffic signals:", e);
+
+        if (!cancelled) {
+          setError("Could not load traffic-signal data.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { geojson, loading, error };
 }
