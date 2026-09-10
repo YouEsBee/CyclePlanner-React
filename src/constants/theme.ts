@@ -135,3 +135,138 @@ export const stylesProfile = StyleSheet.create({
     paddingVertical: 20
   }
 });
+
+export const stylesSearch = StyleSheet.create({
+  fieldRow: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  fieldInput: {
+    flex: 1
+  },
+  clearField: {
+    paddingHorizontal: 10,
+    paddingVertical: 6
+  },
+  clearFieldText: {
+    color: "#8A8F98",
+    fontSize: 18
+  },
+  suggestions: {
+    maxHeight: 220,
+    marginHorizontal: 5,
+    marginBottom: 5,
+    borderRadius: 10,
+    backgroundColor: "#F7F7F8",
+    overflow: "hidden"
+  },
+  suggestion: {
+    paddingVertical: 10,
+    paddingHorizontal: 12
+  },
+  suggestionPressed: {
+    backgroundColor: "#E4E5E9"
+  },
+  suggestionName: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#111111"
+  },
+  suggestionAddress: {
+    fontSize: 12,
+    color: "#60646C",
+    marginTop: 2
+  },
+  suggestionStatus: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12
+  },
+  suggestionStatusText: {
+    fontSize: 13,
+    color: "#60646C"
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginHorizontal: 5,
+    marginTop: 2
+  },
+  chip: {
+    borderRadius: 999,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#C9CCD1",
+    paddingHorizontal: 12,
+    paddingVertical: 6
+  },
+  chipText: {
+    fontSize: 12,
+    color: "#006BF6",
+    fontWeight: "600"
+  },
+  errorText: {
+    color: "#D22B2B",
+    fontSize: 13,
+    marginHorizontal: 5,
+    marginTop: 8
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 8
+  },
+  buttonDisabled: {
+    opacity: 0.5
+  },
+  secondaryButton: {
+    borderRadius: 10,
+    backgroundColor: "#EEEEEE",
+    padding: 10,
+    marginTop: 15,
+    marginBottom: 5,
+    paddingHorizontal: 16
+  },
+  secondaryButtonText: {
+    color: "#111111",
+    textAlign: "center",
+    fontWeight: "bold"
+  }
+});
+
+export const stylesRoute = StyleSheet.create({
+  card: {
+    position: "absolute",
+    left: 10,
+    right: 10,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 16,
+    elevation: 10, // Android
+    zIndex: 10,
+    shadowColor: "#000", // iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4
+  },
+  metrics: {
+    flexDirection: "row",
+    gap: 24
+  },
+  metricValue: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#111111"
+  },
+  metricLabel: {
+    fontSize: 12,
+    color: "#60646C",
+    marginTop: 2
+  },
+  detail: {
+    fontSize: 13,
+    color: "#60646C",
+    marginTop: 10
+  }
+});
