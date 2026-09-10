@@ -279,7 +279,7 @@ export default function Index() {
             onChangeText={(loc) => { setStartLoc(loc); setStartPlace(null); }}
             onFocus={() => setActiveField("start")}
             value={startLoc}
-            placeholder="Starting Point (blank = my location)"
+            placeholder="Starting Point (Current location used if blank)"
             returnKeyType="search"
           />
           {startLoc.length > 0 && (
