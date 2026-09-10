@@ -5,12 +5,14 @@ A React Native application to plan your cycling route in Singapore.
 Run the app in development build for maps to work.
 
 ## Features to be implemented
-- Connect Nomatim or Photon Komoot API for start and destination search
-- Logic for PCN route planning
+- ✅ Connect Nomatim or Photon Komoot API for start and destination search
+- ✅ Logic for PCN route planning
 - After PCN route is generated, the
    - Start Ride Navigation,
    - Save Route,
-   - Clear features
+   - Clear,
+   - Traffic Lights,
+   - Elevation
 - Profile page 
    - Saved Routes,
    - etc.
@@ -19,7 +21,7 @@ Run the app in development build for maps to work.
 - Any other useful features
 
 ## Built with
-React Native (TypeScript), Expo,MapLibre, data.gov.sg
+React Native (TypeScript), Expo, MapLibre, data.gov.sg
 
 ## Expo App Guide
 

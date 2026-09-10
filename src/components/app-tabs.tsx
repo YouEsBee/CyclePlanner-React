@@ -15,7 +15,7 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Planner</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
+          src={require('@/assets/images/tabIcons/bicycle.png')}
           renderingMode="template"
         />
       </NativeTabs.Trigger>
@@ -23,7 +23,7 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="profile">
         <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
+          src={require('@/assets/images/tabIcons/profile.png')}
           renderingMode="template"
         />
       </NativeTabs.Trigger>
