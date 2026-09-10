@@ -1,3 +1,7 @@
+<p align="center">
+   <img src="assets/images/icon.png" width="100" height="100"/>
+</p>
+
 # Cycle Planner
 A React Native application to plan your cycling route in Singapore.
 
