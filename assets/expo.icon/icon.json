@@ -12,13 +12,19 @@
     {
       "layers" : [
         {
+          "blend-mode-specializations" : [
+            {
+              "appearance" : "tinted",
+              "value" : "normal"
+            }
+          ],
           "fill" : "automatic",
           "glass" : true,
           "hidden" : false,
           "image-name" : "icon.png",
           "name" : "icon",
           "position" : {
-            "scale" : 1,
+            "scale" : 1.1,
             "translation-in-points" : [
               0,
               0
@@ -26,6 +32,7 @@
           }
         },
         {
+          "glass" : true,
           "hidden" : false,
           "image-name" : "grid.png",
           "name" : "grid"
