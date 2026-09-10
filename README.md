@@ -1,14 +1,13 @@
 <p align="center">
    <img src="assets/images/icon.png" width="100" height="100"/>
+   <p align="center" style="font-size:30px; font-weight:bold">Cycle Planner</p>
+   <p align="center" style="padding-bottom:30px">A React Native application to plan your cycling route in Singapore.</p>
 </p>
 
-# Cycle Planner
-A React Native application to plan your cycling route in Singapore.
-
-## Important!!!
+### Note!
 Run the app in development build for maps to work.
 
-## TODO - Features to be implemented
+### TODO - Features to be implemented
 - After PCN route is generated, the UI for
    - Start Ride Navigation,
    - Save Route,
@@ -27,14 +26,10 @@ Run the app in development build for maps to work.
 - ✅ Icons for nav bar (normal, @2x, @3x)
 - ✅ App icon (1024x1024)
 
-## Built with
+### Built with
 React Native (TypeScript), Expo, MapLibre, data.gov.sg
 
-## Expo App Guide
-
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
-
-## Get started
+### Get started
 
 1. Install dependencies
 
@@ -42,23 +37,23 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-1a. Optional: Remove previously built Android or iOS app
+2. Optional: Remove previously built Android or iOS app
 
    ```bash
    rm -rf android ios
    ```
 
-2. Prebuild the app
+3. Prebuild the app
 
    ```bash
    npx expo prebuild --clean
    ```
 
-3. Run the app on either android or iOS
+4. Run the app on either android or iOS
 
    ```bash
    npx expo run:android
-   npx expo run:iOS
+   npx expo run:ios
    ```
 
 In the output, you'll find options to open the app in a
@@ -68,12 +63,7 @@ In the output, you'll find options to open the app in a
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Expo Docs
 
-
-## Expo Docs
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- [Expo documentation](https://docs.expo.dev/)
+- [Expo guides](https://docs.expo.dev/guides)
