@@ -4,21 +4,24 @@ A React Native application to plan your cycling route in Singapore.
 ## Important!!!
 Run the app in development build for maps to work.
 
-## Features to be implemented
-- ✅ Connect Nomatim or Photon Komoot API for start and destination search
-- ✅ Logic for PCN route planning
-- After PCN route is generated, the
+## TODO - Features to be implemented
+- After PCN route is generated, the UI for
    - Start Ride Navigation,
    - Save Route,
    - Clear,
-   - Traffic Lights,
-   - Elevation
+   - Elevation,
+   - ✅ Traffic Lights
+- Route planner optimisation
 - Profile page 
    - Saved Routes,
    - etc.
-- Icons for nav bar (normal, @2x, @3x)
-- App icon (1024x1024)
 - Any other useful features
+
+### DONE - Implemented Features
+- ✅ Connect Nomatim or Photon Komoot API for start and destination search
+- ✅ Logic for PCN route planning
+- ✅ Icons for nav bar (normal, @2x, @3x)
+- ✅ App icon (1024x1024)
 
 ## Built with
 React Native (TypeScript), Expo, MapLibre, data.gov.sg
@@ -35,10 +38,23 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+1a. Optional: Remove previously built Android or iOS app
 
    ```bash
-   npx expo start
+   rm -rf android ios
+   ```
+
+2. Prebuild the app
+
+   ```bash
+   npx expo prebuild --clean
+   ```
+
+3. Run the app on either android or iOS
+
+   ```bash
+   npx expo run:android
+   npx expo run:iOS
    ```
 
 In the output, you'll find options to open the app in a
