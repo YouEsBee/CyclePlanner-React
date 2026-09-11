@@ -1,5 +1,5 @@
 import { searchPlaces, type GeoPlace, type LngLat, } from "@/services/geocoding";
-import { buildPcnGraph, type PcnGraph } from "@/services/pcn-routing";
+import { buildPcnGraph, withDrawableLinesOnly, type PcnGraph } from "@/services/pcn-routing";
 import { useEffect, useState } from "react";
 
 export async function fetchParkConnectors(DATASET_ID:string) {
@@ -175,7 +175,9 @@ export function usePcnNetwork(datasetId: string): PcnNetwork {
         const data = await fetchParkConnectors(datasetId);
         if (cancelled) return;
 
-        setGeojson(data);
+        // The published dataset carries a few degenerate LineStrings; MapLibre
+        // warns on each one. Graph building tolerates them, drawing does not.
+        setGeojson(withDrawableLinesOnly(data));
 
         const built = buildPcnGraph(data);
         if (cancelled) return;

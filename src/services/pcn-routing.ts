@@ -714,19 +714,87 @@ export interface FeatureCollectionOf<T> {
   features: T[];
 }
 
+function isDrawableCoordinate(point: unknown): point is LngLat {
+  return (
+    Array.isArray(point) &&
+    point.length >= 2 &&
+    Number.isFinite(point[0]) &&
+    Number.isFinite(point[1])
+  );
+}
+
+/**
+ * MapLibre logs "Invalid geometry in line layer" and drops the whole tile's
+ * worth of work for any LineString with fewer than two finite positions, so
+ * every line we hand a source goes through here first.
+ */
+export function isDrawableLine(coordinates: unknown): coordinates is LngLat[] {
+  return (
+    Array.isArray(coordinates) &&
+    coordinates.length >= 2 &&
+    coordinates.every(isDrawableCoordinate)
+  );
+}
+
+/**
+ * Drops line features MapLibre would reject from an arbitrary FeatureCollection
+ * — the published PCN dataset contains a handful of single-position and empty
+ * LineStrings. Returns the input untouched if it is not a FeatureCollection.
+ */
+export function withDrawableLinesOnly<T>(collection: T): T {
+  const candidate = collection as { type?: string; features?: unknown };
+  if (candidate?.type !== 'FeatureCollection' || !Array.isArray(candidate.features)) {
+    return collection;
+  }
+
+  const features = (candidate.features as any[]).filter((feature) => {
+    const geometry = feature?.geometry;
+    if (geometry?.type === 'LineString') {
+      return isDrawableLine(geometry.coordinates);
+    }
+    if (geometry?.type === 'MultiLineString') {
+      return (
+        Array.isArray(geometry.coordinates) && geometry.coordinates.some(isDrawableLine)
+      );
+    }
+    return Boolean(geometry);
+  });
+
+  // MultiLineStrings can be partly valid; keep only the parts that draw.
+  const cleaned = features.map((feature) =>
+    feature.geometry?.type === 'MultiLineString'
+      ? {
+          ...feature,
+          geometry: {
+            ...feature.geometry,
+            coordinates: feature.geometry.coordinates.filter(isDrawableLine),
+          },
+        }
+      : feature,
+  );
+
+  const dropped = (candidate.features as any[]).length - cleaned.length;
+  if (dropped > 0) {
+    console.log(`Dropped ${dropped} undrawable line feature(s) before rendering.`);
+  }
+
+  return { ...(collection as object), features: cleaned } as T;
+}
+
 export function routeToFeatureCollection(
   route: PlannedRoute,
 ): FeatureCollectionOf<RouteLineFeature> {
-  return {
-    type: 'FeatureCollection',
-    features: [
-      {
-        type: 'Feature',
-        properties: { role: 'route' },
-        geometry: { type: 'LineString', coordinates: route.coordinates },
-      },
-    ],
-  };
+  const features: RouteLineFeature[] = isDrawableLine(route.coordinates)
+    ? [
+        {
+          type: 'Feature',
+          properties: { role: 'route' },
+          geometry: { type: 'LineString', coordinates: route.coordinates },
+        },
+      ]
+    : [];
+
+  return { type: 'FeatureCollection', features };
 }
 
 /** The dashed "get to the path" / "leave the path" legs, when worth drawing. */
@@ -736,10 +804,12 @@ export function accessLegsToFeatureCollection(
   const features: RouteLineFeature[] = [];
   for (const leg of [route.startAccess, route.endAccess]) {
     if (leg.distanceMeters < 5) continue;
+    const coordinates = [leg.from, leg.to];
+    if (!isDrawableLine(coordinates)) continue;
     features.push({
       type: 'Feature',
       properties: { role: 'access' },
-      geometry: { type: 'LineString', coordinates: [leg.from, leg.to] },
+      geometry: { type: 'LineString', coordinates },
     });
   }
   return { type: 'FeatureCollection', features };

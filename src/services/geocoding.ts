@@ -58,12 +58,41 @@ export function isInSingapore(longitude: number, latitude: number): boolean {
   );
 }
 
-function isAbortError(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    (error as { name?: string }).name === 'AbortError'
-  );
+/**
+ * True when a rejection means "this request was cancelled" rather than "this
+ * provider failed".
+ *
+ * The global `fetch` here is Expo's WinterCG implementation, not whatwg-fetch,
+ * and it reports cancellation in three different shapes:
+ *   - `DOMException('The operation was aborted.', 'AbortError')` — the web
+ *     standard, raised when the response body stream is aborted;
+ *   - `FetchError: fetch failed: Fetch request has been canceled` — the native
+ *     Android/iOS cancellation, wrapped by `expo/winter`'s `FetchError`, whose
+ *     `name` is a plain `'Error'`;
+ *   - `FetchError: fetch failed: The operation was aborted.` — thrown when the
+ *     signal was already aborted before the request started.
+ *
+ * Only the first has `name === 'AbortError'`. Testing that alone made every
+ * superseded keystroke look like a Photon outage, which logged a warning and
+ * fired a pointless Nominatim request against a 1 req/s rate limit.
+ */
+function isAbortError(error: unknown, depth = 0): boolean {
+  if (depth > 3 || typeof error !== 'object' || error === null) return false;
+
+  const { name, message, cause } = error as {
+    name?: string;
+    message?: string;
+    cause?: unknown;
+  };
+
+  if (name === 'AbortError') return true;
+  if (typeof message === 'string' && /\b(aborted|cancell?ed)\b/i.test(message)) return true;
+
+  return isAbortError(cause, depth + 1);
+}
+
+function abortError(): Error {
+  return Object.assign(new Error('The operation was aborted.'), { name: 'AbortError' });
 }
 
 /**
@@ -76,7 +105,11 @@ async function fetchJson(
   headers?: Record<string, string>,
 ): Promise<any> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let timedOut = false;
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, REQUEST_TIMEOUT_MS);
   const forwardAbort = () => controller.abort();
   signal?.addEventListener('abort', forwardAbort);
 
@@ -89,6 +122,14 @@ async function fetchJson(
       throw new Error(`${response.status} ${response.statusText}`);
     }
     return await response.json();
+  } catch (error) {
+    // A timeout cancels the request exactly the way a new keystroke does, so
+    // relabel it — otherwise `isAbortError` swallows it and a genuinely slow
+    // provider never fails over to the other one.
+    if (timedOut && !signal?.aborted) {
+      throw new Error(`timed out after ${REQUEST_TIMEOUT_MS}ms`);
+    }
+    throw error;
   } finally {
     clearTimeout(timeout);
     signal?.removeEventListener('abort', forwardAbort);
@@ -240,14 +281,19 @@ export async function searchPlaces(
     const photonResults = await searchPhoton(trimmed, limit, near, signal);
     if (photonResults.length > 0) return photonResults;
   } catch (error) {
-    if (isAbortError(error)) throw error;
+    // `signal.aborted` is the reliable test; the error's shape is not.
+    if (signal?.aborted || isAbortError(error)) throw error;
     console.warn('Photon search failed, falling back to Nominatim:', error);
   }
+
+  // Photon came back empty rather than failing — don't spend the caller's
+  // Nominatim budget on a query they have already moved on from.
+  if (signal?.aborted) throw abortError();
 
   try {
     return await searchNominatim(trimmed, limit, signal);
   } catch (error) {
-    if (isAbortError(error)) throw error;
+    if (signal?.aborted || isAbortError(error)) throw error;
     console.warn('Nominatim search failed:', error);
     return [];
   }
@@ -270,7 +316,7 @@ export async function reverseGeocode(
     const feature = Array.isArray(json?.features) ? json.features[0] : undefined;
     return feature ? photonToPlace(feature, 0) : null;
   } catch (error) {
-    if (isAbortError(error)) throw error;
+    if (signal?.aborted || isAbortError(error)) throw error;
     console.warn('Reverse geocode failed:', error);
     return null;
   }
